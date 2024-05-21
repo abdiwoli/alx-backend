@@ -19,12 +19,10 @@ class LRUCache(BaseCaching):
             return
 
         if key in self.cache_data:
-            # Move the existing key to the end to mark it as recently used
             self.cache_data.move_to_end(key)
         self.cache_data[key] = item
 
         if len(self.cache_data) > BaseCaching.MAX_ITEMS:
-            # Remove the first item (the least recently used item)
             oldest_key = next(iter(self.cache_data))
             del self.cache_data[oldest_key]
             print(f"DISCARD: {oldest_key}")
@@ -32,7 +30,6 @@ class LRUCache(BaseCaching):
     def get(self, key):
         """ Get data from the cache """
         if key in self.cache_data:
-            # Move the accessed key to the end to mark it as recently used
             self.cache_data.move_to_end(key)
             return self.cache_data[key]
         return None
