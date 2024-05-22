@@ -1,0 +1,54 @@
+#!/usr/bin/python3
+"""LFUCache class"""
+from collections import defaultdict, OrderedDict
+from base_caching import BaseCaching
+
+
+class LFUCache(BaseCaching):
+    """Class that inherits from BaseCaching and implements an LFU cache"""
+
+    def __init__(self):
+        """Initialize the cache call supper"""
+        super().__init__()
+        self.cache_data = {}
+        self.freq = defaultdict(int)
+        self.freq_list = defaultdict(OrderedDict)
+        self.min_freq = 0
+
+    def put(self, key, item):
+        """Add an item to the cache"""
+        if key is None or item is None:
+            return
+
+        if key in self.cache_data:
+            self.cache_data[key] = item
+            self.get(key)
+        else:
+            if len(self.cache_data) >= BaseCaching.MAX_ITEMS:
+                freq = self.min_freq
+                evict_key, _ = self.freq_list[freq].popitem(last=False)
+                del self.cache_data[evict_key]
+                del self.freq[evict_key]
+                if not self.freq_list[self.min_freq]:
+                    del self.freq_list[self.min_freq]
+                print(f"DISCARD: {evict_key}")
+            self.cache_data[key] = item
+            self.freq[key] = 1
+            self.min_freq = 1
+            self.freq_list[1][key] = None
+
+    def get(self, key):
+        """Get an item from the cache"""
+        if key is None or key not in self.cache_data:
+            return None
+        freq = self.freq[key]
+        del self.freq_list[freq][key]
+        if not self.freq_list[freq]:
+            del self.freq_list[freq]
+            if self.min_freq == freq:
+                self.min_freq += 1
+
+        self.freq[key] += 1
+        new_freq = self.freq[key]
+        self.freq_list[new_freq][key] = None
+        return self.cache_data[key]
