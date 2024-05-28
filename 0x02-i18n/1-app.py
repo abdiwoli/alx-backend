@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-""" 0-app,py """
+""" 1-app,py """
 from flask import Flask, render_template
 from flask_babel import Babel
 
@@ -17,6 +17,7 @@ app.url_map.strict_slashes = False
 
 
 def get_locale():
+    """ locae setup """
     return request.accept_languages.best_match(app.config['LANGUAGES'])
 
 
