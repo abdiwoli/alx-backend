@@ -14,6 +14,7 @@ class Config:
 app = Flask(__name__)
 app.config.from_object(Config)
 app.url_map.strict_slashes = False
+babel = Babel(app)
 
 
 @babel.localeselector
@@ -28,6 +29,5 @@ def home():
     return render_template('1-index.html')
 
 
-babel = Babel(app)
 if __name__ == '__main__':
     app.run(debug=True)
