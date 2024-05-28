@@ -5,6 +5,7 @@ from flask_babel import Babel
 
 
 class Config:
+    """ config class """
     LANGUAGES = ['en', 'fr']
     BABEL_DEFAULT_TIMEZONE = 'UTC'
     BABEL_DEFAULT_LOCALE = 'en'
@@ -12,6 +13,7 @@ class Config:
 
 app = Flask(__name__)
 app.config.from_object(Config)
+app.url_map.strict_slashes = False
 
 
 def get_locale():
@@ -21,9 +23,9 @@ def get_locale():
 @app.route('/')
 def home():
     """ main route """
-    return render_template('0-index.html')
+    return render_template('1-index.html')
 
 
-babel = Babel(app, locale_selector=get_locale)
+babel = Babel(app)
 if __name__ == '__main__':
     app.run(debug=True)
