@@ -2,6 +2,8 @@
 """ 3-app.py """
 from flask_babel import Babel, gettext as _
 from flask import Flask, g, render_template, request
+import pytz
+from babel import dates
 
 
 users = {
@@ -62,24 +64,20 @@ def validate_timezone(timezone):
     except pytz.exceptions.UnknownTimeZoneError:
         return 'UTC'
 
+
 @babel.timezoneselector
 def get_timezone():
-    # Find timezone parameter in URL parameters
     timezone_from_url = request.args.get('timezone')
     if timezone_from_url:
         validated_timezone = validate_timezone(timezone_from_url)
         if validated_timezone:
             return validated_timezone
-    
-    # Find time zone from user settings
     if g.user:
         user_timezone = g.user.get('timezone')
         if user_timezone:
             validated_timezone = validate_timezone(user_timezone)
             if validated_timezone:
                 return validated_timezone
-    
-    # Default to UTC
     return 'UTC'
 
 
@@ -92,7 +90,7 @@ def before_request():
 @app.route('/')
 def home():
     """ main route """
-    return render_template('6-index.html')
+    return render_template('7-index.html')
 
 
 if __name__ == '__main__':
