@@ -67,17 +67,17 @@ def validate_timezone(timezone):
 
 @babel.timezoneselector
 def get_timezone():
-    timezone_from_url = request.args.get('timezone')
-    if timezone_from_url:
-        validated_timezone = validate_timezone(timezone_from_url)
-        if validated_timezone:
-            return validated_timezone
+    from_url = request.args.get('timezone')
+    if from_url:
+        valid = validate_timezone(timezone_from_url)
+        if valid:
+            return valid
     if g.user:
         user_timezone = g.user.get('timezone')
         if user_timezone:
-            validated_timezone = validate_timezone(user_timezone)
-            if validated_timezone:
-                return validated_timezone
+            valid = validate_timezone(user_timezone)
+            if valid:
+                return valid
     return 'UTC'
 
 
