@@ -5,18 +5,19 @@ from flask import Flask, g, render_template, request
 
 
 users = {
-    "1": {"name": "Balou", "locale": "fr", "timezone": "Europe/Paris"},
-    "2": {"name": "Beyonce", "locale": "en", "timezone": "US/Central"},
-    "3": {"name": "Spock", "locale": "kg", "timezone": "Vulcan"},
-    "4": {"name": "Teletubby", "locale": None, "timezone": "Europe/London"},
+    1: {"name": "Balou", "locale": "fr", "timezone": "Europe/Paris"},
+    2: {"name": "Beyonce", "locale": "en", "timezone": "US/Central"},
+    3: {"name": "Spock", "locale": "kg", "timezone": "Vulcan"},
+    4: {"name": "Teletubby", "locale": None, "timezone": "Europe/London"},
 }
 
 
 def get_user():
+    """ get user fin """
     global users
     user_id = request.args.get('login_as')
     if user_id:
-        data = users.get(user_id, {})
+        data = users.get(int(user_id), {})
         return data
     return None
 
@@ -47,6 +48,7 @@ def get_locale():
 
 @app.before_request
 def before_request():
+    """ before function user """
     g.user = get_user()
 
 

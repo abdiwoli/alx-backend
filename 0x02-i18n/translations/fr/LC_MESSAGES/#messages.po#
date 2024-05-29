@@ -27,7 +27,7 @@ msgid "home_header"
 msgstr "Bonjour monde!"
 
 msgid "You are logged in as %(username)s."
-msgstr "Vous êtes connecté en tant que %(username)s."
+msgstr "Vous êtes connecté en "
 
-msgid "You are not logged in."
+msgid "you are not logged in."
 msgstr "Vous n'êtes pas connecté."
