@@ -1,32 +1,40 @@
-const redis = require('redis');
+import { createClient, print } from 'redis';
 const { promisify } = require('util');
+const client = createClient();
 
-const client = redis.createClient();
-
-// Promisify Redis commands
-const getAsync = promisify(client.get).bind(client);
-
-client.on('error', function (error) {
-  console.error('Redis client not connected to the server:', error);
+client.on('error', (err) => {
+  console.error(`Redis client error: ${err.message}`);
   client.quit();
 });
 
-client.on('connect', function () {
+client.on('connect', () => {
   console.log('Redis client connected to the server');
 });
 
-async function displaySchoolValue(schoolName) {
-  try {
-    const value = await getAsync(schoolName);
-    if (value) {
-      console.log(`${schoolName}: ${value}`);
-    } else {
-      console.log(`No value found for school '${schoolName}'.`);
-    }
-  } catch (error) {
-    console.error(`Error getting ${schoolName}:`, error);
-  }
-}
+(async () => {
+    try {
+    await client.connect();
+	function setNewSchool(schoolName, value, callback){
+      client.set(schoolName, value, callback);
+    };
+    setNewSchool = promisify(setNewSchool);
 
-// Example usage
-displaySchoolValue('Holberton');
+    const displaySchoolValue = async (schoolName) => {
+      const value = await client.get(schoolName);
+      if (value) {
+        console.log(value);
+      } else {
+        console.log(`No value found for school '${schoolName}'.`);
+      }
+    };
+
+    // Function calls
+    await displaySchoolValue('Holberton');
+    setNewSchool('HolbertonSanFrancisco', '100');
+    await displaySchoolValue('HolbertonSanFrancisco');
+  } catch (error) {
+    console.error('Error during Redis operations:', error);
+  } finally {
+    await client.quit();
+  }
+})();

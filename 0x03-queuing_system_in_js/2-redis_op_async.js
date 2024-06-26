@@ -1,5 +1,5 @@
 import { createClient, print } from 'redis';
-
+const { promisify } = require('util');
 const client = createClient();
 
 client.on('error', (err) => {
@@ -12,11 +12,12 @@ client.on('connect', () => {
 });
 
 (async () => {
-    try {
+  try {
     await client.connect();
-    const setNewSchool = async (schoolName, value) => {
-      await client.set(schoolName, value, print);
+    let setNewSchool = (schoolName, value, callback) => {
+      client.set(schoolName, value, print);
     };
+    setNewSchool = promisify(setNewSchool);
 
     const displaySchoolValue = async (schoolName) => {
       const value = await client.get(schoolName);
