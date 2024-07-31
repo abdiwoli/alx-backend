@@ -1,0 +1,71 @@
+import redis from 'redis';
+import kue from 'kue';
+import express from 'express';
+import createJobs from './create_job.js';
+const queue = kue.createQueue();
+import util from 'util'
+
+const client = redis.createClient();
+client.connect().catch(error => {
+    console.error('Redis connection error:', error);
+});
+const get = util.promisify(client.get).bind(client);
+const set = util.promisify(client.set).bind(client);
+
+const seats = 50;
+let reservationEnabled = true;
+
+const reserveSeat = async (number) => {
+    try {
+        await set('available_seats', number);
+    } catch (error) {
+        console.error('Error reserving seat:', error);
+    }
+};
+
+
+const getCurrentAvailableSeats = async () => {
+    try {
+        const reserved = await get('available_seats');
+        return parseInt(reserved, 10) || 0;
+    } catch (error) {
+        console.error('Error getting current available seats:', error);
+        return 0;
+    }
+};
+
+queue.process('reservation', async (job, done) => {
+    try {
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        done();
+    } catch (error) {
+        done(error);
+    }
+});
+
+
+
+const app = express();
+app.use(express.json());
+app.listen(1245, () => {
+    console.log('Server is running on port 1245');
+});
+
+
+app.get('/process', async (req, res) => {
+    if (reservationEnabled) {
+        const available = await getCurrentAvailableSeats();
+        const numberOfseats = available + 1;
+        console.log(numberOfseats);
+        if (numberOfseats <= seats) {
+            createJobs('reservation');
+            await reserveSeat(numberOfseats);
+            res.status(200).json({"status":"Reservation in process"});
+            return;
+        } else if (numberOfseats >= seats) {
+            reservationEnabled = false;
+        }
+    }
+    
+    res.status(404).json({"status":"Reservations are blocked"});
+});
