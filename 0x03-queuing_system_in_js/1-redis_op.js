@@ -1,39 +1,32 @@
-import { createClient, print } from 'redis';
+import { createClient } from 'redis';
+import redis from 'redis';
 
-const client = createClient();
+const client = await createClient();
 
-client.on('error', (err) => {
-  console.error(`Redis client error: ${err.message}`);
-  client.quit();
-});
+await client.connect()
+    .then(() => {
+        console.log('Redis client connected to the server');
+    })
+    .catch(err => {
+        console.log(`Redis client not connected to the server: ${err}`);
+    });
 
-client.on('connect', () => {
-  console.log('Redis client connected to the server');
-});
+const setNewSchool = (schoolName, value) => {
+    client.set(schoolName, value, redis.print)
+        .then (data => {
+            console.log(`Reply: ${data}`);
+        })
+        .catch(err => {console.log(err)});
+}
 
-(async () => {
-    try {
-    await client.connect();
-    const setNewSchool = async (schoolName, value) => {
-      await client.set(schoolName, value, print);
-    };
+const displaySchoolValue = (schoolName) => {
+    client.get(schoolName)
+        .then (data => {
+            console.log(data);
+        })
+        .catch(err => {console.log(err)});
+}
 
-    const displaySchoolValue = async (schoolName) => {
-      const value = await client.get(schoolName);
-      if (value) {
-        console.log(value);
-      } else {
-        console.log(`No value found for school '${schoolName}'.`);
-      }
-    };
-
-    // Function calls
-    await displaySchoolValue('Holberton');
-    setNewSchool('HolbertonSanFrancisco', '100');
-    await displaySchoolValue('HolbertonSanFrancisco');
-  } catch (error) {
-    console.error('Error during Redis operations:', error);
-  } finally {
-    await client.quit();
-  }
-})();
+displaySchoolValue('Holberton');
+setNewSchool('HolbertonSanFrancisco', '100');
+displaySchoolValue('HolbertonSanFrancisco');
