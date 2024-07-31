@@ -71,18 +71,17 @@ app.get('/available_seats', async (req, res) => {
     }
 });
 
-// Route to reserve a seat
+
 app.get('/reserve_seat', async (req, res) => {
     if (reservationEnabled) {
-        createJobs('reservation', 1); // Queue a job to reserve one seat
+        createJobs('reservation', 1);
         res.status(200).json({ status: 'Reservation in process' });
     } else {
         res.status(404).json({ status: 'Reservations are blocked' });
     }
 });
 
-// Route to process the queue
+
 app.get('/process', async (req, res) => {
-    // Simply return a status indicating the queue is being processed
     res.status(200).json({ status: 'Queue processing' });
 });
